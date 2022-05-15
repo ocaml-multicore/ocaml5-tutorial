@@ -1,0 +1,5 @@
+(executable
+ (public_name ocaml5_tutorial)
+ (name par)
+ (modules par)
+ (libraries ocaml5_tutorial))
