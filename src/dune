@@ -1,5 +1,19 @@
 (executable
- (public_name ocaml5_tutorial)
  (name par)
  (modules par)
+ (libraries ocaml5_tutorial))
+
+(executable
+ (name fib)
+ (modules fib)
+ (libraries ocaml5_tutorial))
+
+(executable
+ (name fib_twice)
+ (modules fib_twice)
+ (libraries ocaml5_tutorial))
+
+(executable
+ (name fib_par)
+ (modules fib_par)
  (libraries ocaml5_tutorial))
