@@ -1,6 +1,6 @@
 # OCaml 5 Tutorial
 
-A hands-on tutorial on the new parallelism features in OCaml 5. The tutorial was run in May 2022.
+A hands-on tutorial on the new parallelism features in OCaml 5. This tutorial will be run on 19th May 2022.
 
 ## Installation
 
