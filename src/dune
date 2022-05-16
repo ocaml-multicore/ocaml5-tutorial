@@ -17,3 +17,23 @@
  (name fib_par)
  (modules fib_par)
  (libraries ocaml5_tutorial))
+
+(executable
+ (name incr)
+ (modules incr)
+ (libraries ocaml5_tutorial))
+
+(executable
+ (name msg_passing)
+ (modules msg_passing)
+ (libraries ocaml5_tutorial))
+
+(executable
+ (name incr_cas)
+ (modules incr_cas)
+ (libraries ocaml5_tutorial))
+
+(executable
+ (name prod_cons_nb)
+ (modules prod_cons_nb)
+ (libraries ocaml5_tutorial))

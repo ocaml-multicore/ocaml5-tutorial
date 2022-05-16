@@ -194,3 +194,90 @@ fib(n) = (fib(n-2) + fib(n-3)) + fib(n-2)
 
 The left recursive call does more work than the right branch. We shall get to 2x
 speedup eventually. First, we need to take a detour.
+
+## Inter-domain communication
+
+`Domain.join` is a way to synchronize with the domain. OCaml 5 also provides
+other features for inter-domain communication.
+
+### DRF-SC guarantee
+
+OCaml has mutable reference cells and arrays. Can we share ref cells and arrays
+between multiple domains and access them in parallel? The answer is yes. But the
+value that may be returned by a read may not be the latest one written to that
+memory location due to the influence of compiler and hardware optimizations. The
+description of the exact value returned by such racy accesses is beyond the
+scope of the tutorial. For more information on this, you should refer to the
+[PLDI 2018 paper on "Bounding Data Races in Space and
+Time"](https://kcsrk.info/papers/pldi18-memory.pdf).
+
+OCaml reference cells and arrays are known as **non-atomic** data structures.
+Whenever two domains race to access a non-atomic memory location, and one of the
+access is a write, then we say that there is a **data race**. When your program
+does not have a data race, then the behaviours observed are **sequentially
+consistent** -- the observed behaviour can simply be understood as the
+interleaved execution of different domains.
+
+An important guarantee is that, even if you program has data races, your program
+will not crash (memory safety). The recommendation for the OCaml user is that
+**avoid data races for ease of reasoning**.
+
+### Atomics
+
+How do we avoid races? One option is to use the
+[`Atomic`](https://github.com/ocaml/ocaml/blob/trunk/stdlib/atomic.mli) module
+which provides low-level atomic mutable references. Importantly, races on atomic
+references are not data races, and hence, the programmer will observe
+sequentially consistent behaviour.
+
+The program [src/incr.ml](src/incr.ml) increments a counter 1M times twice in
+parallel. As you can see, the non-atomic increment under counts:
+
+```bash
+% dune exec src/incr.exe
+Non-atomic ref count: 1101799
+Atomic ref count: 2000000
+```
+
+Atomic module is used for low-level inter-domain communication. They are used
+for implementing lock-free data structures. For example, the program
+[src/msg_passing.ml](src/msg_passing.ml) shows an implementation of message
+passing between domains. The program uses `get` and `set` on the atomic
+reference `r` for communication. Although the domains race on the access to `r`,
+since `r` is an atomic variable, it is not a data race. 
+
+```bash
+% bash exec src/msg_passing.exe
+Hello
+```
+
+### Compare-and-set
+
+Atomic module also has `compare_and_set` primitive. `compare_and_set r old new`
+atomically compares the current value of the atomic reference `r` with the `old`
+value and replaces that with the `new` value. The program
+[src/incr_cas.ml](src/incr_cas.ml) shows how to implement atomic increment
+(inefficiently) using `compare_and_set`:
+
+```ocaml
+let rec incr r =
+  let curr = Atomic.get r in
+  if Atomic.compare_and_set r curr (curr + 1) then ()
+  else begin
+    Domain.cpu_relax ();
+    incr r
+  end
+```
+
+```bash
+% dune exec src/incr_cas.exe
+Atomic ref count: 2000000
+```
+
+## Exercise ★★★☆☆
+
+Complete the implementation of the non-blocking atomic stack. The skeleton file
+is available in [src/prod_cons_nb.ml](src/prod_cons_nb.ml). Remember that
+`compare_and_set` uses physical equality. The `old` value provided must
+physically match the current value of the atomic reference for the comparison to
+succeed.
