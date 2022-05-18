@@ -12,3 +12,8 @@
  (name prod_cons_b)
  (modules prod_cons_b)
  (libraries ocaml5_tutorial))
+
+(executable
+ (name tak_par)
+ (modules tak_par)
+ (libraries ocaml5_tutorial domainslib))

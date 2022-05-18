@@ -346,6 +346,8 @@ Let's first install `domainslib`:
 % opam install domainslib
 ```
 
+### Async/await
+
 At its core, `domainslib` provides an
 [async/await](https://github.com/ocaml-multicore/domainslib/blob/b8de1f718804f64b158dd3bffda1b1c15ea90f29/lib/task.mli#L38-L49)
 mechanism for spawning parallel tasks and waiting on their results. On top of
@@ -395,8 +397,11 @@ For sufficiently large inputs (`n > 20`), the `fib_par` function spawns the left
 and the right recursive calls asynchronously in the pool using `async` function.
 `async` function returns a promise for the result. The result of an `async` is
 obtained by `await`ing on the promise, which may block if the promise is not
-resolved. For small inputs, the function simply calls the sequential Fibonacci
-function.
+resolved. 
+
+For small inputs, the function simply calls the sequential Fibonacci function.
+It is important to switch to sequential mode for small problem sizes. If not,
+the cost of parallelisation will outweigh the work available.
 
 Let's see how this program scales compared to our earlier implementations.
 
@@ -428,3 +433,45 @@ count increases. On a machine with 24 cores, for `fib(48)`,
 | 8	| 5.023	| 7.36	| 7.52 |
 | 16 |	2.914	| 12.68	| 12.97 | 
 | 24 | 2.201	| 16.79	| 17.17 |
+
+#### Exercise ★★☆☆☆
+
+Implement parallel version of `tak` function:
+
+```ocaml
+let rec tak x y z =
+  if x > y then
+    tak (tak (x-1) y z) (tak (y-1) z x) (tak (z-1) x y)
+  else z
+```
+
+The skeleton file is in [src/tak_par.ml](src/tak_par.ml). Calculating the time
+complexity of `tak` function turns out to be tricky. Use `x < 20 && y < 20` as
+the sequential cutoff -- if the condition holds, call the sequential version of
+`tak`.
+
+```bash
+% hyperfine 'dune exec src/tak.exe 36 24 12' 'dune exec solutions/tak_par.exe 2 36 24 12' 'dune exec solutions/tak_par.exe 4 36 24 12'
+Benchmark 1: dune exec src/tak.exe 36 24 12
+  Time (mean ± σ):      7.259 s ±  0.191 s    [User: 7.162 s, System: 0.049 s]
+  Range (min … max):    6.921 s …  7.540 s    10 runs
+
+Benchmark 2: dune exec solutions/tak_par.exe 2 36 24 12
+  Time (mean ± σ):      3.112 s ±  0.063 s    [User: 6.082 s, System: 0.046 s]
+  Range (min … max):    3.020 s …  3.188 s    10 runs
+
+Benchmark 3: dune exec solutions/tak_par.exe 4 36 24 12
+  Time (mean ± σ):      1.793 s ±  0.039 s    [User: 6.938 s, System: 0.049 s]
+  Range (min … max):    1.741 s …  1.871 s    10 runs
+```
+
+Observe that there is super-linear speedup going from the sequential version to
+the 2 core version! Why?
+
+### Parallel Iteration
+
+Many numerical algorithms use for loops. The parallel for primitive provides a
+straight-forward way to parallelize such code. Lets take the
+[spectral-norm](https://benchmarksgame-team.pages.debian.net/benchmarksgame/description/spectralnorm.html#spectralnorm)
+benchmark from the computer language benchmarks game. The sequential version of
+the benchmark is available at [src/spectralnorm.ml](src/spectralnorm.ml).

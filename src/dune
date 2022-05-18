@@ -42,3 +42,23 @@
  (name fib_domainslib)
  (modules fib_domainslib)
  (libraries ocaml5_tutorial domainslib))
+
+(executable
+ (name tak)
+ (modules tak)
+ (libraries ocaml5_tutorial))
+
+(executable
+ (name tak_par)
+ (modules tak_par)
+ (libraries ocaml5_tutorial domainslib))
+
+(executable
+ (name mandelbrot)
+ (modules mandelbrot)
+ (libraries ocaml5_tutorial))
+
+(executable
+ (name mandelbrot_par)
+ (modules mandelbrot_par)
+ (libraries ocaml5_tutorial domainslib))
