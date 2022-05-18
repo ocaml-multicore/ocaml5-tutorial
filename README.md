@@ -489,6 +489,69 @@ $ perf record --call-graph dwarf ./_build/default/src/spectralnorm.exe
 ```
 
 We build the program. The command `perf record --call-graph dwarf` informs
-`perf` to record a trace which includes the call graph information.
+`perf` to record a trace which includes the call graph information. The report 
+can be viewed with:
+
+```bash
+$ perf report
+```
 
 ![image](https://user-images.githubusercontent.com/410484/169073769-04007d52-875a-4139-8101-759e4ec71bcb.png)
+
+The report shows that the functions `eval_A_times_u` and `eval_At_times_u` and
+their children each take around 50% of the execution time. Those are the useful
+ones to parallelise.
+
+The parallel version of the program is in
+[src/spectralnorm_par.ml](src/spectralnorm_par.ml). The sequential loop in
+`eval_A_times_u`:
+
+```ocaml
+for i = 0 to n do
+  let vi = ref 0. in
+    for j = 0 to n do vi := !vi +. eval_A i j *. u.(j) done;
+    v.(i) <- !vi
+done
+```
+
+becomes:
+
+```ocaml
+T.parallel_for pool ~start:0 ~finish:n ~body:(fun i ->
+  let vi = ref 0. in
+    for j = 0 to n do vi := !vi +. eval_A i j *. u.(j) done;
+    v.(i) <- !vi
+)
+```
+
+The rest of the code changes is just boilerplate code. The resultant code scales
+nicely:
+
+```bash
+% hyperfine 'dune exec src/spectralnorm.exe 4096'
+Benchmark 1: dune exec src/spectralnorm.exe 4096
+  Time (mean ± σ):      2.060 s ±  0.016 s    [User: 2.017 s, System: 0.026 s]
+  Range (min … max):    2.027 s …  2.078 s    10 runs
+
+% hyperfine 'dune exec src/spectralnorm_par.exe 2 4096' 'dune exec src/spectralnorm_par.exe 4 4096' 
+Benchmark 1: dune exec src/spectralnorm_par.exe 2 4096
+  Time (mean ± σ):      1.169 s ±  0.053 s    [User: 2.201 s, System: 0.030 s]
+  Range (min … max):    1.109 s …  1.294 s    10 runs
+ 
+Benchmark 2: dune exec src/spectralnorm_par.exe 4 4096
+  Time (mean ± σ):     702.3 ms ±  20.7 ms    [User: 2599.1 ms, System: 39.5 ms]
+  Range (min … max):   674.0 ms … 741.4 ms    10 runs
+```
+
+#### Exercise ★★☆☆☆
+
+Implement parallel version of [Game of
+Life](https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life) simulation. The
+sequential version is in [src/game_of_life.ml](src/game_of_life.ml). The
+sequential version takes the number of iterations and the board size as the
+first and second arguments.
+
+You should modify [src/game_of_life_par.ml](src/game_of_life_par.ml) with the
+parallel version. Currently, this file is the same as the sequential version
+except that it takes the number of domains as the first argument, the number
+iterations as the second argument and the board size as the third argument.

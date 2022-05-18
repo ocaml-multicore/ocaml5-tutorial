@@ -1,4 +1,4 @@
-let w = int_of_string (Array.get Sys.argv 1) in
+let w = try int_of_string (Array.get Sys.argv 1) with _ -> 200
 let niter = 50
 let limit = 4.
 

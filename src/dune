@@ -54,6 +54,26 @@
  (libraries ocaml5_tutorial domainslib))
 
 (executable
+ (name spectralnorm)
+ (modules spectralnorm)
+ (libraries ocaml5_tutorial))
+
+(executable
+ (name spectralnorm_par)
+ (modules spectralnorm_par)
+ (libraries ocaml5_tutorial domainslib))
+
+(executable
+ (name game_of_life)
+ (modules game_of_life)
+ (libraries ocaml5_tutorial))
+
+(executable
+ (name game_of_life_par)
+ (modules game_of_life_par)
+ (libraries ocaml5_tutorial domainslib))
+
+(executable
  (name mandelbrot)
  (modules mandelbrot)
  (libraries ocaml5_tutorial))
@@ -62,8 +82,3 @@
  (name mandelbrot_par)
  (modules mandelbrot_par)
  (libraries ocaml5_tutorial domainslib))
-
-(executable
- (name spectralnorm)
- (modules spectralnorm)
- (libraries ocaml5_tutorial))

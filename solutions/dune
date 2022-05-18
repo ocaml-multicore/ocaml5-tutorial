@@ -17,3 +17,8 @@
  (name tak_par)
  (modules tak_par)
  (libraries ocaml5_tutorial domainslib))
+
+(executable
+ (name game_of_life_par)
+ (modules game_of_life_par)
+ (libraries ocaml5_tutorial domainslib))

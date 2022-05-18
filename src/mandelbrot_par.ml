@@ -10,7 +10,7 @@ let mandelbrot pool w =
   let fw = float w /. 2. and fh = float h /. 2. in
   Printf.printf "P4\n%i %i\n" w h;
   let red_h = h - 1 and red_w = w - 1 in
-  T.parallel_for_reduce pool Bytes.cat (Bytes.create 0) ~start:0 ~finish:red_h ~body:(fun y ->
+  T.parallel_for_reduce pool (@) [] ~start:0 ~finish:red_h ~body:(fun y ->
     let byte = ref 0 in
     let buf = Buffer.create 16 in
     let ci = float y /. fh -. 1. in
@@ -38,13 +38,13 @@ let mandelbrot pool w =
     let rem = w mod 8 in
     if rem != 0 then (* the row doesnt divide evenly by 8 *)
       Buffer.add_uint8 buf (!byte lsl (8 - rem)); (* output last few bits *)
-    Buffer.to_bytes buf
+    [buf]
   )
 
 let main () =
   let pool = T.setup_pool ~num_additional_domains:(num_domains - 1) () in
-  let res = T.run pool (fun _ -> mandelbrot pool w) in
+  let l = T.run pool (fun _ -> mandelbrot pool w) in
   T.teardown_pool pool;
-  output_bytes stdout res
+  List.iter (fun buf -> output_bytes stdout (Buffer.to_bytes buf)) l
 
 let _ = main ()
