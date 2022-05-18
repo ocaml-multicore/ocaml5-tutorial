@@ -7,3 +7,8 @@
  (name prod_cons_nb)
  (modules prod_cons_nb)
  (libraries ocaml5_tutorial))
+
+(executable
+ (name prod_cons_b)
+ (modules prod_cons_b)
+ (libraries ocaml5_tutorial))

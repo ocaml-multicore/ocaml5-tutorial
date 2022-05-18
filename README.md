@@ -277,7 +277,30 @@ Atomic ref count: 2000000
 ## Exercise ★★★☆☆
 
 Complete the implementation of the non-blocking atomic stack. The skeleton file
-is available in [src/prod_cons_nb.ml](src/prod_cons_nb.ml). Remember that
+is [src/prod_cons_nb.ml](src/prod_cons_nb.ml). Remember that
 `compare_and_set` uses physical equality. The `old` value provided must
 physically match the current value of the atomic reference for the comparison to
 succeed.
+
+## Blocking synchronization
+
+The only primitive that we have seen so far that blocks a domain is
+`Domain.join`. OCaml 5 also provides blocking synchronization through
+[`Mutex`](https://github.com/ocaml/ocaml/blob/trunk/stdlib/mutex.mli),
+[`Condition`](https://github.com/ocaml/ocaml/blob/trunk/stdlib/condition.mli)
+and
+[`Semaphore`](https://github.com/ocaml/ocaml/blob/trunk/stdlib/semaphore.mli)
+modules. These are the same modules that are present in OCaml 4 to synchronize
+between `Threads`. These modules have been lifted up to the level of domains.
+
+## Exercise ★★★☆☆
+
+In the last exercise [src/prod_cons_nb.ml](src/prod_cons_nb.ml), the pop
+operation on the atomic stack returns `None` if the stack is empty. In this
+exercise, you will complete the implementation of a _blocking_ variant of the
+stack where the `pop` operation blocks until a matching `push` appears. The
+skeleton file is [src/prod_cons_b.ml](src/prod_cons_b.ml).
+
+This exercise may be hard if you have not programmed with mutex and condition
+variables previously. Fret not. In the next section, we shall look at a
+higher-level API for parallel programming built on these low-level constructs.
