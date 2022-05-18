@@ -567,3 +567,23 @@ You should modify [src/game_of_life_par.ml](src/game_of_life_par.ml) with the
 parallel version. Currently, this file is the same as the sequential version
 except that it takes the number of domains as the first argument, the number
 iterations as the second argument and the board size as the third argument.
+
+
+#### Parallelising mandelbrot
+
+Let's parallelise something more tricky -- the [sequential version of
+mandelbrot](https://benchmarksgame-team.pages.debian.net/benchmarksgame/program/mandelbrot-ocaml-6.html)
+from the computer language benchmarks game. The sequential version is available
+in [src/mandelbrot.ml](src/mandelbrot.ml).
+
+```bash
+$ dune exec src/mandelbrot.exe 1024 > output.bmp
+```
+
+The tricky bit here is that the program outputs bytes to `stdout` in the body of
+the loop. In the parallel version, the order of the output should be preserved. 
+
+In the parallel version -- [src/mandelbrot_par.ml](src/mandelbrot_par.ml) -- we
+use the `parallel_for_reduce` primitive. Each parallel iteration accumulates the
+output in a `Buffer.t` and returns it. `parallel_for_reduce` accumulates the
+outputs in a list, which is finally output to `stdout`.
