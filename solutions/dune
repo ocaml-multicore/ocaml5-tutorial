@@ -19,6 +19,11 @@
  (libraries ocaml5_tutorial domainslib))
 
 (executable
+ (name mergesort_par)
+ (modules mergesort_par)
+ (libraries ocaml5_tutorial domainslib))
+
+(executable
  (name game_of_life_par)
  (modules game_of_life_par)
  (libraries ocaml5_tutorial domainslib))

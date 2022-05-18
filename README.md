@@ -468,6 +468,18 @@ Benchmark 3: dune exec solutions/tak_par.exe 4 36 24 12
 Observe that there is super-linear speedup going from the sequential version to
 the 2 core version! Why?
 
+
+#### Exercise ★★★★★
+
+Implement a parallel version of merge sort. It easy to implement a version that
+doesn't scale :-) If you use a list for holding the intermediate results, GC
+impact will kill scalability. 
+
+You should use an array for holding the elements to be sorted. The observation
+is that during the merge step, the length of the merged result is exactly the
+sum of the input arrays. Hence, one may use an additional array of the same size
+as the input array to hold the merge results.
+
 ### Parallel Iteration
 
 Many numerical algorithms use for loops. The parallel for primitive provides a
