@@ -475,3 +475,18 @@ straight-forward way to parallelize such code. Lets take the
 [spectral-norm](https://benchmarksgame-team.pages.debian.net/benchmarksgame/description/spectralnorm.html#spectralnorm)
 benchmark from the computer language benchmarks game. The sequential version of
 the benchmark is available at [src/spectralnorm.ml](src/spectralnorm.ml).
+
+We can see that the program has several for loops. How do we which part of the
+program is amenable to parallelism? We can profile the program using `perf` to
+answer this. `perf` only works on Linux.
+
+```bash
+$ dune build src/spectralnorm.exe
+$ perf record --call-graph dwarf ./_build/default/src/spectralnorm.exe
+1.274224152
+[ perf record: Woken up 115 times to write data ]
+[ perf record: Captured and wrote 28.535 MB perf.data (3542 samples) ]
+```
+
+We build the program. The command `perf record --call-graph dwarf` informs
+`perf` to record a trace which includes the call graph information.
