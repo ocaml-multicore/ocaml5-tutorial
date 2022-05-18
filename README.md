@@ -352,6 +352,8 @@ mechanism for spawning parallel tasks and waiting on their results. On top of
 this mechanism, `domainslib` provides [parallel
 iterators](https://github.com/ocaml-multicore/domainslib/blob/b8de1f718804f64b158dd3bffda1b1c15ea90f29/lib/task.mli#L51-L80).
 
+### Parallel Fibonacci 
+
 Let us now parallelise Fibonacci using domainslib. The program is in the file
 [src/fib_domainslib.ml](src/fib_domainslib.ml):
 
