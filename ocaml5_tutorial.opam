@@ -12,6 +12,7 @@ depends: [
   "ocaml"
   "dune" {>= "3.1"}
   "odoc" {with-doc}
+  "domainslib"
 ]
 build: [
   ["dune" "subst"] {dev}

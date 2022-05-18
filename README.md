@@ -77,7 +77,7 @@ Spawned domains can be joined to get their results. The program
 [src/fib.ml](src/fib.ml) computes the nth Fibonacci number. 
 
 ```ocaml
-let n = try int_of_string Sys.argv.(1) with _ -> 10
+let n = try int_of_string Sys.argv.(1) with _ -> 40
 
 let rec fib n = if n < 2 then 1 else fib (n - 1) + fib (n - 2)
 
@@ -104,7 +104,7 @@ The program [src/fib_twice.ml](src/fib_twice.ml) computes the nth Fibonacci
 number twice in parallel.
 
 ```ocaml
-let n = try int_of_string Sys.argv.(1) with _ -> 10
+let n = try int_of_string Sys.argv.(1) with _ -> 40
 
 let rec fib n = if n < 2 then 1 else fib (n - 1) + fib (n - 2)
 
@@ -166,7 +166,7 @@ program will only spawn two additional domains. The skeleton is in the file
 [src/fib_par.ml](src/fib_par.ml):
 
 ```ocaml
-let n = try int_of_string Sys.argv.(1) with _ -> 10
+let n = try int_of_string Sys.argv.(1) with _ -> 40
 
 let rec fib n = if n < 2 then 1 else fib (n - 1) + fib (n - 2)
 
@@ -184,8 +184,22 @@ let _ = main ()
 ```
 
 When you finish the exercise, you will notice that with 2 cores, the speed up is
-nowhere close to 2x. This is because of the fact that the work is imbalanced
-between the two recursive calls of the fibonacci function.
+nowhere close to 2x. 
+
+```bash
+% hyperfine 'dune exec src/fib.exe 42'
+Benchmark 1: dune exec src/fib.exe 42
+  Time (mean ± σ):      1.251 s ±  0.014 s    [User: 1.223 s, System: 0.016 s]
+  Range (min … max):    1.236 s …  1.285 s    10 runs
+
+% hyperfine 'dune exec solutions/fib_par.exe 42'
+Benchmark 1: dune exec solutions/fib_par.exe 42
+  Time (mean ± σ):      1.140 s ±  0.053 s    [User: 1.625 s, System: 0.021 s]
+  Range (min … max):    1.072 s …  1.191 s    10 runs
+```
+
+This is because of the fact that the work is imbalanced between the two
+recursive calls of the fibonacci function.
 
 ```
 fib(n) = fib(n-1) + fib(n-2)
@@ -304,3 +318,109 @@ skeleton file is [src/prod_cons_b.ml](src/prod_cons_b.ml).
 This exercise may be hard if you have not programmed with mutex and condition
 variables previously. Fret not. In the next section, we shall look at a
 higher-level API for parallel programming built on these low-level constructs.
+
+## Domainslib
+
+The primitives that we have seen so far are all that OCaml 5 expresses for
+parallelism. It turns out that these primitives are almost sufficient to
+implement efficient nested data-parallel programs such as the parallel recursive
+Fibonacci program. 
+
+The missing piece is that we also need an efficient way to suspend the current
+computation and resume it later, which effect handlers provide. We shall keep
+the focus of this tutorial on the parallelism primitives. Hence, if you are keen
+to learn about effect handlers, please do check out the [effect handlers
+tutorial in the OCaml 5 manual](https://kcsrk.info/webman/manual/effects.html).
+
+[Domainslib](https://github.com/ocaml-multicore/domainslib) is a library that
+provides support for nested-parallel programming library, which is epitomized by
+the parallelism available in the recursive Fibonacci computation. At its core,
+`domainslib` has an efficient implementation of work-stealing queue in order to
+efficiently share tasks with other domains. 
+
+Let's first install `domainslib`:
+
+```bash
+% opam install domainslib
+```
+
+At its core, `domainslib` provides an
+[async/await](https://github.com/ocaml-multicore/domainslib/blob/b8de1f718804f64b158dd3bffda1b1c15ea90f29/lib/task.mli#L38-L49)
+mechanism for spawning parallel tasks and waiting on their results. On top of
+this mechanism, `domainslib` provides [parallel
+iterators](https://github.com/ocaml-multicore/domainslib/blob/b8de1f718804f64b158dd3bffda1b1c15ea90f29/lib/task.mli#L51-L80).
+
+Let us now parallelise Fibonacci using domainslib. The program is in the file
+[src/fib_domainslib.ml](src/fib_domainslib.ml):
+
+```ocaml
+module T = Domainslib.Task
+
+let num_domains = try int_of_string Sys.argv.(1) with _ -> 1
+let n = try int_of_string Sys.argv.(2) with _ -> 40
+
+let rec fib n = if n < 2 then 1 else fib (n - 1) + fib (n - 2)
+
+let rec fib_par pool n =
+  if n > 20 then begin
+    let a = T.async pool (fun _ -> fib_par pool (n-1)) in
+    let b = T.async pool (fun _ -> fib_par pool (n-2)) in
+    T.await pool a + T.await pool b
+  end else fib n
+
+let main () =
+  let pool = T.setup_pool ~num_additional_domains:(num_domains - 1) () in
+  let res = T.run pool (fun _ -> fib_par pool n) in
+  T.teardown_pool pool;
+  Printf.printf "fib(%d) = %d\n" n res
+
+let _ = main ()
+```
+
+The program takes the number of domains to use as the first argument and the
+input as the second argument. 
+
+Let's start with the main function. The first
+thing to do in order to use domainslib is to set up a pool of domains on which
+the nested parallel tasks will run. The domain invoking the `run` function will
+also participate in executing the tasks submitted to the pool. We invoke the
+parallel Fibonacci function `fib_par` in the `run` function. Finally, we
+teardown the pool and print the result.
+
+For sufficiently large inputs (`n > 20`), the `fib_par` function spawns the left
+and the right recursive calls asynchronously in the pool using `async` function.
+`async` function returns a promise for the result. The result of an `async` is
+obtained by `await`ing on the promise, which may block if the promise is not
+resolved. For small inputs, the function simply calls the sequential Fibonacci
+function.
+
+Let's see how this program scales compared to our earlier implementations.
+
+```bash
+% hyperfine 'dune exec src/fib.exe 42'
+Benchmark 1: dune exec src/fib.exe 42
+  Time (mean ± σ):      1.251 s ±  0.014 s    [User: 1.223 s, System: 0.016 s]
+  Range (min … max):    1.236 s …  1.285 s    10 runs
+
+% hyperfine 'dune exec solutions/fib_par.exe 42'
+Benchmark 1: dune exec solutions/fib_par.exe 42
+  Time (mean ± σ):      1.140 s ±  0.053 s    [User: 1.625 s, System: 0.021 s]
+  Range (min … max):    1.072 s …  1.191 s    10 runs
+
+% hyperfine 'dune exec src/fib_domainslib.exe 2 42'
+Benchmark 1: dune exec src/fib_domainslib.exe 2 42
+  Time (mean ± σ):     666.6 ms ±   9.2 ms    [User: 1264.1 ms, System: 18.1 ms]
+  Range (min … max):   662.0 ms … 692.1 ms    10 runs
+```
+
+The domainslib version scales extremely well. This holds true even as the core
+count increases. On a machine with 24 cores,
+
+| Cores	| Time (Seconds)	| Vs Serial	| Vs Self |
+|--|--|--|--|
+| 1	| 37.787	| 0.98	| 1 | 
+| 2	| 19.034 | 1.94	| 1.99 |
+| 4	| 9.723	| 3.8	| 3.89 |
+| 8	| 5.023	| 7.36	| 7.52 |
+| 16 |	2.914	| 12.68	| 12.97 | 
+| 24 | 2.201	| 16.79	| 17.17 |

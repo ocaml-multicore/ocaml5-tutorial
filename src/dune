@@ -37,3 +37,8 @@
  (name prod_cons_nb)
  (modules prod_cons_nb)
  (libraries ocaml5_tutorial))
+
+(executable
+ (name fib_domainslib)
+ (modules fib_domainslib)
+ (libraries ocaml5_tutorial domainslib))
