@@ -25,7 +25,9 @@ opam install . --deps-only
 Since we will be doing performance measurements, it is recommended that you also
 install [`hyperfine`](https://github.com/sharkdp/hyperfine).
 
-## Concurrency vs Parallelism
+## Domains for Parallelism
+
+### Concurrency vs Parallelism
 
 OCaml 5 distinguishes concurrency and parallelism. Concurrency is **overlapped**
 execution of concurrent tasks. Parallelism is **simultaneous** execution of
@@ -36,7 +38,7 @@ parallelism.
 
 Let us focus on parallelism features first. 
 
-## Domains for Parallelism
+### Programming with domains
 
 Domains are units of parallel computation. New domains can be spawned using
 `Domain.spawn` primitive:
