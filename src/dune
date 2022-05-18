@@ -62,3 +62,8 @@
  (name mandelbrot_par)
  (modules mandelbrot_par)
  (libraries ocaml5_tutorial domainslib))
+
+(executable
+ (name spectralnorm)
+ (modules spectralnorm)
+ (libraries ocaml5_tutorial))
