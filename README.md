@@ -490,3 +490,5 @@ $ perf record --call-graph dwarf ./_build/default/src/spectralnorm.exe
 
 We build the program. The command `perf record --call-graph dwarf` informs
 `perf` to record a trace which includes the call graph information.
+
+![image](https://user-images.githubusercontent.com/410484/169073769-04007d52-875a-4139-8101-759e4ec71bcb.png)
