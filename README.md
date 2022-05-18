@@ -290,7 +290,7 @@ let rec incr r =
 Atomic ref count: 2000000
 ```
 
-### Exercise ★★★☆☆
+#### Exercise ★★★☆☆
 
 Complete the implementation of the non-blocking atomic stack. The skeleton file
 is [src/prod_cons_nb.ml](src/prod_cons_nb.ml). Remember that
@@ -309,7 +309,7 @@ and
 modules. These are the same modules that are present in OCaml 4 to synchronize
 between `Threads`. These modules have been lifted up to the level of domains.
 
-### Exercise ★★★☆☆
+#### Exercise ★★★☆☆
 
 In the last exercise [src/prod_cons_nb.ml](src/prod_cons_nb.ml), the pop
 operation on the atomic stack returns `None` if the stack is empty. In this
