@@ -71,7 +71,7 @@ MacBook Pro with 4 cores and 8 hardware threads. It is reasonable to expect a
 speedup of 4x on embarrassingly parallel programs (and a little more if
 Hyper-Threading gods are kind to us).
 
-## Fibonacci Number
+### Fibonacci Number
 
 Spawned domains can be joined to get their results. The program
 [src/fib.ml](src/fib.ml) computes the nth Fibonacci number. 
@@ -135,7 +135,7 @@ Benchmark 1: dune exec src/fib_twice.exe 40
 You can see that computing the nth Fibonacci number twice almost took the same
 time as computing it once thanks to parallelism.
 
-## Nature of domains
+### Nature of domains
 
 Domains are heavy-weight entities. Each domain directly maps to an operating
 system thread. Hence, they are relatively expensive to create and tear down.
@@ -158,7 +158,7 @@ OCaml"](https://icfp20.sigplan.org/details/icfp-2020-papers/21/Retrofitting-Para
 Due to the overhead of domains, **the recommendation is that you spawn exactly
 one domain per available core.**
 
-## Exercise ★★☆☆☆
+### Exercise ★★☆☆☆
 
 Compute the nth Fibonacci number in parallel by parallelising recursive calls.
 For this exercise, only spawn new domains for the top two recursive calls. You
@@ -288,7 +288,7 @@ let rec incr r =
 Atomic ref count: 2000000
 ```
 
-## Exercise ★★★☆☆
+### Exercise ★★★☆☆
 
 Complete the implementation of the non-blocking atomic stack. The skeleton file
 is [src/prod_cons_nb.ml](src/prod_cons_nb.ml). Remember that
@@ -296,7 +296,7 @@ is [src/prod_cons_nb.ml](src/prod_cons_nb.ml). Remember that
 physically match the current value of the atomic reference for the comparison to
 succeed.
 
-## Blocking synchronization
+### Blocking synchronization
 
 The only primitive that we have seen so far that blocks a domain is
 `Domain.join`. OCaml 5 also provides blocking synchronization through
@@ -307,7 +307,7 @@ and
 modules. These are the same modules that are present in OCaml 4 to synchronize
 between `Threads`. These modules have been lifted up to the level of domains.
 
-## Exercise ★★★☆☆
+### Exercise ★★★☆☆
 
 In the last exercise [src/prod_cons_nb.ml](src/prod_cons_nb.ml), the pop
 operation on the atomic stack returns `None` if the stack is empty. In this
@@ -414,7 +414,7 @@ Benchmark 1: dune exec src/fib_domainslib.exe 2 42
 ```
 
 The domainslib version scales extremely well. This holds true even as the core
-count increases. On a machine with 24 cores,
+count increases. On a machine with 24 cores, for `fib(48)`,
 
 | Cores	| Time (Seconds)	| Vs Serial	| Vs Self |
 |--|--|--|--|
