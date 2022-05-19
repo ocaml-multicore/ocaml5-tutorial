@@ -587,3 +587,20 @@ In the parallel version -- [src/mandelbrot_par.ml](src/mandelbrot_par.ml) -- we
 use the `parallel_for_reduce` primitive. Each parallel iteration accumulates the
 output in a `Buffer.t` and returns it. `parallel_for_reduce` accumulates the
 outputs in a list, which is finally output to `stdout`.
+
+```bash
+% hyperfine 'dune exec src/mandelbrot.exe 4096 > output.bmp'
+Benchmark 1: dune exec src/mandelbrot.exe 4096 > output.bmp
+  Time (mean ± σ):      1.755 s ±  0.006 s    [User: 1.717 s, System: 0.023 s]
+  Range (min … max):    1.750 s …  1.771 s    10 runs
+
+% hyperfine 'dune exec src/mandelbrot_par.exe 2 4096 > output.bmp'
+Benchmark 1: dune exec src/mandelbrot_par.exe 2 4096 > output.bmp
+  Time (mean ± σ):     871.9 ms ±   7.2 ms    [User: 1662.0 ms, System: 22.6 ms]
+  Range (min … max):   866.4 ms … 888.9 ms    10 runs
+
+ % hyperfine 'dune exec src/mandelbrot_par.exe 4 4096 > output.bmp'
+Benchmark 1: dune exec src/mandelbrot_par.exe 4 4096 > output.bmp
+  Time (mean ± σ):     486.5 ms ±   7.5 ms    [User: 1723.0 ms, System: 23.7 ms]
+  Range (min … max):   474.5 ms … 502.8 ms    10 runs
+```
