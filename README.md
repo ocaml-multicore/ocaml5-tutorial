@@ -36,7 +36,7 @@ handlers](https://kcsrk.info/webman/manual/effects.html) for concurrency and
 [domains](https://github.com/ocaml/ocaml/blob/trunk/stdlib/domain.mli) for
 parallelism.
 
-Let us focus on parallelism features first. 
+We will focus on the parallelism features in this tutorial.
 
 ### Programming with domains
 
