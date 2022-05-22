@@ -232,11 +232,12 @@ Whenever two domains race to access a non-atomic memory location, and one of the
 access is a write, then we say that there is a **data race**. When your program
 does not have a data race, then the behaviours observed are **sequentially
 consistent** -- the observed behaviour can simply be understood as the
-interleaved execution of different domains.
+interleaved execution of different domains. This guarantee is known as
+data-race-freedom sequential-consistency (DRF-SC).
 
-An important guarantee is that, even if you program has data races, your program
-will not crash (memory safety). The recommendation for the OCaml user is that
-**avoid data races for ease of reasoning**.
+An important aspect of the OCaml 5 memory model is that, even if you program has
+data races, your program will not crash (memory safety). The recommendation for
+the OCaml user is that **avoid data races for ease of reasoning**.
 
 ### Atomics
 
