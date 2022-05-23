@@ -264,7 +264,7 @@ reference `r` for communication. Although the domains race on the access to `r`,
 since `r` is an atomic variable, it is not a data race. 
 
 ```bash
-% bash exec src/msg_passing.exe
+% dune exec src/msg_passing.exe
 Hello
 ```
 
