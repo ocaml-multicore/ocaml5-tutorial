@@ -1,6 +1,7 @@
 # OCaml 5 Tutorial
 
-A hands-on tutorial on the new parallelism features in OCaml 5. This tutorial was run on 19th May 2022.
+A hands-on tutorial on the new parallelism features in OCaml 5. This tutorial
+was run on 19th May 2022.
 
 ## Installation
 
@@ -75,8 +76,8 @@ Hyper-Threading gods are kind to us).
 
 ### Fibonacci Number
 
-Spawned domains can be joined to get their results. The program
-[src/fib.ml](src/fib.ml) computes the nth Fibonacci number. 
+We shall use the program to compute the nth Fibonacci number as the running
+example. The program is in [src/fib.ml](src/fib.ml).
 
 ```ocaml
 let n = try int_of_string Sys.argv.(1) with _ -> 40
@@ -102,8 +103,9 @@ Benchmark 1: dune exec src/fib.exe 40
 
 On my machine, it takes 500ms to compute the 40th Fibonacci number.
 
-The program [src/fib_twice.ml](src/fib_twice.ml) computes the nth Fibonacci
-number twice in parallel.
+Spawned domains can be joined to get their results. The program
+[src/fib_twice.ml](src/fib_twice.ml) computes the nth Fibonacci number twice in
+parallel.
 
 ```ocaml
 let n = try int_of_string Sys.argv.(1) with _ -> 40
@@ -142,7 +144,9 @@ time as computing it once thanks to parallelism.
 Domains are heavy-weight entities. Each domain directly maps to an operating
 system thread. Hence, they are relatively expensive to create and tear down.
 Moreover, each domain brings its own runtime state local to the domain. In
-particular, each domain has its own minor heap area and major heap pools.
+particular, each domain has its own minor heap area and major heap pools. Due to
+the overhead of domains, **the recommendation is that you spawn exactly one
+domain per available core.**
 
 OCaml 5 GC is designed to be a low-latency garbage collector with short
 stop-the-world pauses. Whenever a domain exhausts its minor heap arena, it calls
@@ -156,9 +160,6 @@ sequential programs, and remains scalable and low-latency for parallel programs.
 For more information, please have a look at the [ICFP 2020 paper and talk on
 "Retrofitting Parallelism onto
 OCaml"](https://icfp20.sigplan.org/details/icfp-2020-papers/21/Retrofitting-Parallelism-onto-OCaml).
-
-Due to the overhead of domains, **the recommendation is that you spawn exactly
-one domain per available core.**
 
 ### Exercise ★★☆☆☆
 
@@ -200,8 +201,8 @@ Benchmark 1: dune exec solutions/fib_par.exe 42
   Range (min … max):    1.072 s …  1.191 s    10 runs
 ```
 
-This is because of the fact that the work is imbalanced between the two
-recursive calls of the fibonacci function.
+This is because of the fact that the work is not balanced between the two
+recursive calls of the Fibonacci function.
 
 ```
 fib(n) = fib(n-1) + fib(n-2)
