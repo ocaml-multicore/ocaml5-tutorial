@@ -337,7 +337,7 @@ to learn about effect handlers, please do check out the [effect handlers
 tutorial in the OCaml 5 manual](https://kcsrk.info/webman/manual/effects.html).
 
 [Domainslib](https://github.com/ocaml-multicore/domainslib) is a library that
-provides support for nested-parallel programming library, which is epitomized by
+provides support for nested-parallel programming, which is epitomized by
 the parallelism available in the recursive Fibonacci computation. At its core,
 `domainslib` has an efficient implementation of work-stealing queue in order to
 efficiently share tasks with other domains. 
