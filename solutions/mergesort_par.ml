@@ -3,78 +3,51 @@ module T = Domainslib.Task
 let num_domains = try int_of_string @@ Sys.argv.(1) with _ -> 1
 let n = try int_of_string @@ Sys.argv.(2) with _ -> 1024
 
-let min = 128
-let pool = T.setup_pool ~num_additional_domains:(num_domains - 1) ()
+let bubble_sort_threshold = 32
 
 let _ = Random.init 42
 let a = Array.init n (fun _ -> Random.int n)
-let b = Array.make n 0
 
-type array_slice = {arr: int array; index: int; length: int}
-
-let sort a =
-  for i = a.index to a.index + a.length - 2 do
-    for j = i + 1 to a.index + a.length - 1 do
-      if a.arr.(j) < a.arr.(i) then
-        let t = a.arr.(i) in
-        a.arr.(i) <- a.arr.(j);
-        a.arr.(j) <- t
+let bubble_sort (a : int array) start limit =
+  for i = start to limit - 2 do
+    for j = i + 1 to limit - 1 do
+      if a.(j) < a.(i) then
+        let t = a.(i) in
+        a.(i) <- a.(j);
+        a.(j) <- t;
     done
   done
 
-let merge a b res =
-  let rec loop ai bi ri =
-    match a.index + a.length - ai, b.index + b.length - bi with
-    | n, 0 -> Array.blit a.arr ai res.arr ri n
-    | 0, n -> Array.blit b.arr bi res.arr ri n
-    | _, _ ->
-        if a.arr.(ai) < b.arr.(bi) then begin
-          res.arr.(ri) <- a.arr.(ai);
-          loop (ai+1) bi (ri+1)
-        end else begin
-          res.arr.(ri) <- b.arr.(bi);
-          loop ai (bi+1) (ri+1)
-        end
-  in
-  loop a.index b.index res.index
-
-let rec merge_sort a b l =
-  if a.length <= min then begin
-    sort a;
-    a
-  end else
-    let a1= {a with index = a.index; length = a.length / 2} in
-    let b1 = {b with index = b.index; length = b.length / 2} in
-    let r1 = T.async pool (fun _ -> merge_sort a1 b1 (2*l+1)) in
-
-    let a2 = {a with index = a.index + a.length / 2;
-                length = a.length - a.length / 2} in
-    let b2 = {b with index = b.index + b.length / 2;
-                length = b.length - b.length / 2} in
-    let r2 = T.async pool (fun _ -> merge_sort a2 b2 (2*l+2)) in
-
-    let (r1, r2) = (T.await pool r1, T.await pool r2) in
-
-    if r1.arr != r2.arr then begin
-      if r2.arr == a.arr then begin
-        merge r1 r2 a;
-        a
-      end else begin
-        merge r1 r2 b;
-        b
-      end
-    end else if r1.arr == a.arr then begin
-      merge r1 r2 b;
-      b
+let merge (src : int array) dst start split limit =
+  let rec loop dst_pos i j =
+    if i = split then
+      Array.blit src j dst dst_pos (limit - j)
+    else if j = limit then
+      Array.blit src i dst dst_pos (split - i)
+    else if src.(i) <= src.(j) then begin
+      dst.(dst_pos) <- src.(i);
+      loop (dst_pos + 1) (i + 1) j;
     end else begin
-      merge r1 r2 a;
-      a
-    end
+      dst.(dst_pos) <- src.(j);
+      loop (dst_pos + 1) i (j + 1);
+    end in
+  loop start start split
 
-let _ =
-  let aslice = {arr = a; index = 0; length = n}in
-  let bslice = {arr = b; index = 0; length = n} in
+let rec merge_sort pool move a b start limit =
+  if move || limit - start > bubble_sort_threshold then
+    let split = (start + limit) / 2 in
+    let r1 = T.async pool (fun () -> merge_sort pool (not move) a b start split) in
+    let r2 = T.async pool (fun () -> merge_sort pool (not move) a b split limit) in
+    T.await pool r1;
+    T.await pool r2;
+    if move then merge a b start split limit else merge b a start split limit
+  else bubble_sort a start limit
 
-  let _r = T.run pool (fun _ -> merge_sort aslice bslice 0) in
-(*   Array.iter (fun i -> print_endline (string_of_int i)) _r.arr; *)
+let sort pool a =
+  let b = Array.copy a in
+  T.run pool (fun () -> merge_sort pool false a b 0 (Array.length a))
+
+let () =
+  let pool = T.setup_pool ~num_additional_domains:(num_domains - 1) () in
+  sort pool a;
   T.teardown_pool pool
