@@ -32,7 +32,7 @@ eval $(opam env)
 ```
 
 Since we will be doing performance measurements, it is recommended that you also
-install [`hyperfine`](https://github.com/sharkdp/hyperfine). With Homebrew, `brew install hyperfine`
+install [`hyperfine`](https://github.com/sharkdp/hyperfine). 
 
 ## Domains for Parallelism
 
@@ -72,7 +72,7 @@ $ cat src/par.ml
 Domain.spawn (fun _ -> print_endline "I ran in parallel")
 ```
 
-The Dune command compiles the native version of the above program and runs it:
+The `dune` command compiles the native version of the above program and runs it:
 
 ```bash
 $ dune exec src/par.exe
