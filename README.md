@@ -1,7 +1,7 @@
 # OCaml 5 Tutorial
 
 A hands-on tutorial on the new parallelism features in OCaml 5. This tutorial
-was run on 5 July 2022. Currently, the alpha version of OCaml 5 has been released, and the full version is set for release in September 2022. 
+was run on the 19th of May 2022 at the [Tarides retreat](https://tarides.com/blog/2022-06-23-team-tarides-visits-a-17th-century-chateau). Currently, the alpha version of OCaml 5 has been released, and the full version is set for release in September 2022. 
 
 ## Installation
 
