@@ -1,34 +1,42 @@
 # OCaml 5 Tutorial
 
 A hands-on tutorial on the new parallelism features in OCaml 5. This tutorial
-was run on 19th May 2022.
+was run on the 19th of May 2022 at the [Tarides retreat](https://tarides.com/blog/2022-06-23-team-tarides-visits-a-17th-century-chateau). Currently, the alpha version of OCaml 5 has been released, and the full version is set for release in September 2022. 
 
 ## Installation
 
-This tutorial works on x86-64 and Arm64 architectures on Linux and macOS.
+This tutorial works on x86-64 and Arm64 architectures on Linux and macOS. 
 
-With `opam` version >= 2.1:
+Before we move on to the instructions, check your version of opam with `opam --version`, then follow the instructions below for your version. You can also quickly update to the latest version of opam (currently 2.1.2) by running:
 
-```bash
-opam update
-opam switch create 5.0.0+trunk --repo=default,alpha=git+https://github.com/kit-ty-kate/opam-alpha-repository.git
-opam install . --deps-only
+```
+bash -c "sh <(curl -fsSL https://raw.githubusercontent.com/ocaml/opam/master/shell/install.sh)"
 ```
 
-with `opam` version < 2.1:
+With opam version >= 2.1:
 
 ```bash
 opam update
-opam switch create 5.0.0+trunk --repo=default,beta=git+https://github.com/ocaml/ocaml-beta-repository.git,alpha=git+https://github.com/kit-ty-kate/opam-alpha-repository.git
+opam switch create 5.0.0~alpha0 --repo=default,alpha=git+https://github.com/kit-ty-kate/opam-alpha-repository.git
 opam install . --deps-only
+eval $(opam env)
+```
+
+with opam version < 2.1:
+
+```bash
+opam update
+opam switch create 5.0.0~alpha0 --repo=default,beta=git+https://github.com/ocaml/ocaml-beta-repository.git,alpha=git+https://github.com/kit-ty-kate/opam-alpha-repository.git
+opam install . --deps-only
+eval $(opam env)
 ```
 
 Since we will be doing performance measurements, it is recommended that you also
-install [`hyperfine`](https://github.com/sharkdp/hyperfine).
+install [`hyperfine`](https://github.com/sharkdp/hyperfine). 
 
 ## Domains for Parallelism
 
-### Concurrency vs Parallelism
+### Concurrency vs. Parallelism
 
 OCaml 5 distinguishes concurrency and parallelism. Concurrency is **overlapped**
 execution of concurrent tasks. Parallelism is **simultaneous** execution of
@@ -39,7 +47,7 @@ parallelism.
 
 We will focus on the parallelism features in this tutorial.
 
-### Programming with domains
+### Programming with Domains
 
 Domains are units of parallel computation. New domains can be spawned using
 `Domain.spawn` primitive:
@@ -53,6 +61,10 @@ I ran in parallel
 - : unit Domain.t = <abstr>
 ```
 
+Use `Ctrl+D` to exit.
+
+(If you get the error "Cannot find file topfind," run `opam install ocamlfind`, part of the `findlib` package.)
+
 The same example is also in [src/par.ml](src/par.ml):
 
 ```bash
@@ -60,7 +72,7 @@ $ cat src/par.ml
 Domain.spawn (fun _ -> print_endline "I ran in parallel")
 ```
 
-The dune command compiles the native version of the above program and runs it:
+The `dune` command compiles the native version of the above program and runs it:
 
 ```bash
 $ dune exec src/par.exe
@@ -139,7 +151,7 @@ Benchmark 1: dune exec src/fib_twice.exe 40
 You can see that computing the nth Fibonacci number twice almost took the same
 time as computing it once thanks to parallelism.
 
-### Nature of domains
+### Nature of Domains
 
 Domains are heavy-weight entities. Each domain directly maps to an operating
 system thread. Hence, they are relatively expensive to create and tear down.
