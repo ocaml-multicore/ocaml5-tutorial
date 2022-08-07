@@ -5,7 +5,7 @@ was run on the 19th of May 2022 at the [Tarides retreat](https://tarides.com/blo
 
 ## Installation
 
-This tutorial works on x86-64 and Arm64 architectures on Linux and macOS. 
+This tutorial works on x86-64 and Arm64 architectures on Linux and macOS. If you're new to OCaml, it will be necessary to first [install opam](https://opam.ocaml.org/doc/Install.html), OCaml's package manager. 
 
 Before we move on to the instructions, check your version of opam with `opam --version`, then follow the instructions below for your version. You can also quickly update to the latest version of opam (currently 2.1.2) by running:
 
@@ -32,7 +32,19 @@ eval $(opam env)
 ```
 
 Since we will be doing performance measurements, it is recommended that you also
-install [`hyperfine`](https://github.com/sharkdp/hyperfine). 
+install [`hyperfine`](https://github.com/sharkdp/hyperfine). Scroll down toward the bottom of the ReadMe to find the 
+installation instructions for various systems.
+
+----
+
+**Please note**: Many of the following exercises require access to files in this repo, so please clone it now 
+using `https://github.com/kayceesrk/ocaml5-tutorial.git`, then `cd ocaml5-tutorial`.
+
+Throughout, we'll be using Dune, OCaml's build system, to convert our programs into executables. For more information on 
+Dune, please reference [Dune's documentation](https://dune.readthedocs.io/en/stable/).
+
+----
+
 
 ## Domains for Parallelism
 
@@ -63,9 +75,9 @@ I ran in parallel
 
 Use `Ctrl+D` to exit.
 
-(If you get the error "Cannot find file topfind," run `opam install ocamlfind`, part of the `findlib` package.)
+(If you get the error "Cannot find file topfind," run `opam install ocamlfind`, part of the `findlib` package, then run `$ eval $(opam env) again.)
 
-The same example is also in [src/par.ml](src/par.ml):
+The same example is also in [src/par.ml](src/par.ml): 
 
 ```bash
 $ cat src/par.ml
@@ -79,7 +91,8 @@ $ dune exec src/par.exe
 I ran in parallel
 ```
 
-In this section of the tutorial, we will be running parallel programs. The
+
+In this next section of the tutorial, we will be running parallel programs. The
 results observed will be dependent on the number of cores that you have on your
 machine. I am writing this tutorial on an 2.3 GHz Quad-Core Intel Core i7
 MacBook Pro with 4 cores and 8 hardware threads. It is reasonable to expect a
@@ -88,8 +101,9 @@ Hyper-Threading gods are kind to us).
 
 ### Fibonacci Number
 
-We shall use the program to compute the nth Fibonacci number as the running
-example. The program is in [src/fib.ml](src/fib.ml).
+The following program has already been created in [src/fib.ml](src/fib.ml), but we've displayed it here 
+for your convenience. We shall use this program to compute the nth Fibonacci number as the running
+example:
 
 ```ocaml
 let n = try int_of_string Sys.argv.(1) with _ -> 40
@@ -103,7 +117,9 @@ let main () =
 let _ = main ()
 ```
 
-The program is a vanilla implementation of the Fibonacci function.
+The program is a vanilla implementation of the Fibonacci function. 
+First, we'll use Dune to turn it into an executable, then choose a number for n (40 or less), 
+and finally run the program with Hyperfine.
 
 ```bash
 $ dune build src/fib.exe
@@ -116,7 +132,7 @@ Benchmark 1: dune exec src/fib.exe 40
 On my machine, it takes 500ms to compute the 40th Fibonacci number.
 
 Spawned domains can be joined to get their results. The program
-[src/fib_twice.ml](src/fib_twice.ml) computes the nth Fibonacci number twice in
+[src/fib_twice.ml](src/fib_twice.ml), shown below, computes the nth Fibonacci number twice in
 parallel.
 
 ```ocaml
@@ -149,7 +165,7 @@ Benchmark 1: dune exec src/fib_twice.exe 40
 ```
 
 You can see that computing the nth Fibonacci number twice almost took the same
-time as computing it once thanks to parallelism.
+time as computing it once, thanks to parallelism.
 
 ### Nature of Domains
 
@@ -160,15 +176,15 @@ particular, each domain has its own minor heap area and major heap pools. Due to
 the overhead of domains, **the recommendation is that you spawn exactly one
 domain per available core.**
 
-OCaml 5 GC is designed to be a low-latency garbage collector with short
+The OCaml 5 garbage collector (GC) is designed to be a low-latency GC with short
 stop-the-world pauses. Whenever a domain exhausts its minor heap arena, it calls
-for a stop-the-world, parallel minor GC, where all the domains collect their
-minor heaps. The domains also perform concurrent (not stop-the-world) collection
+for a stop-the-world, parallel minor GC. Here, all the domains collect their
+minor heaps. They also perform concurrent (not stop-the-world) collection
 of the major heap. The major collection cycle involves a number of very short
 stop-the-world pauses.
 
-Overall, the behaviour of OCaml 5 GC should match that of the OCaml 4 GC for
-sequential programs, and remains scalable and low-latency for parallel programs.
+Overall, the behaviour of the OCaml 5 GC should match that of the OCaml 4 GC for
+sequential programs, and it remains scalable and low-latency for parallel programs.
 For more information, please have a look at the [ICFP 2020 paper and talk on
 "Retrofitting Parallelism onto
 OCaml"](https://icfp20.sigplan.org/details/icfp-2020-papers/21/Retrofitting-Parallelism-onto-OCaml).
@@ -176,9 +192,9 @@ OCaml"](https://icfp20.sigplan.org/details/icfp-2020-papers/21/Retrofitting-Para
 ### Exercise ★★☆☆☆
 
 Compute the nth Fibonacci number in parallel by parallelising recursive calls.
-For this exercise, only spawn new domains for the top two recursive calls. You
+For this exercise, only spawn new domains for the top two recursive calls. Your
 program will only spawn two additional domains. The skeleton is in the file
-[src/fib_par.ml](src/fib_par.ml):
+[src/fib_par.ml](src/fib_par.ml), as shown below, to get you started:
 
 ```ocaml
 let n = try int_of_string Sys.argv.(1) with _ -> 40
@@ -199,7 +215,7 @@ let _ = main ()
 ```
 
 When you finish the exercise, you will notice that with 2 cores, the speed up is
-nowhere close to 2x. 
+nowhere close to 2x. Compare the output of each file:
 
 ```bash
 % hyperfine 'dune exec src/fib.exe 42'
@@ -224,33 +240,33 @@ fib(n) = (fib(n-2) + fib(n-3)) + fib(n-2)
 The left recursive call does more work than the right branch. We shall get to 2x
 speedup eventually. First, we need to take a detour.
 
-## Inter-domain communication
+## Inter-Domain Communication
 
 `Domain.join` is a way to synchronize with the domain. OCaml 5 also provides
 other features for inter-domain communication.
 
-### DRF-SC guarantee
+### DRF-SC Guarantee
 
 OCaml has mutable reference cells and arrays. Can we share ref cells and arrays
 between multiple domains and access them in parallel? The answer is yes. But the
-value that may be returned by a read may not be the latest one written to that
-memory location due to the influence of compiler and hardware optimizations. The
+value that a read returns may not be the latest one written to that
+memory location, due to the influence of compiler and hardware optimizations. The
 description of the exact value returned by such racy accesses is beyond the
-scope of the tutorial. For more information on this, you should refer to the
+scope of the tutorial. For more information on this, refer to the
 [PLDI 2018 paper on "Bounding Data Races in Space and
 Time"](https://kcsrk.info/papers/pldi18-memory.pdf).
 
 OCaml reference cells and arrays are known as **non-atomic** data structures.
-Whenever two domains race to access a non-atomic memory location, and one of the
-access is a write, then we say that there is a **data race**. When your program
+Whenever two domains race to access a non-atomic memory location, and one is a write access, 
+then we say that there is a **data race**. When your program
 does not have a data race, then the behaviours observed are **sequentially
-consistent** -- the observed behaviour can simply be understood as the
+consistent**. The observed behaviour can simply be understood as the
 interleaved execution of different domains. This guarantee is known as
 data-race-freedom sequential-consistency (DRF-SC).
 
 An important aspect of the OCaml 5 memory model is that, even if you program has
 data races, your program will not crash (memory safety). The recommendation for
-the OCaml user is that **avoid data races for ease of reasoning**.
+the OCaml user is to **avoid data races for ease of reasoning**.
 
 ### Atomics
 
@@ -269,9 +285,9 @@ Non-atomic ref count: 1101799
 Atomic ref count: 2000000
 ```
 
-Atomic module is used for low-level inter-domain communication. They are used
+The Atomic module is used for low-level, inter-domain communication. They are used
 for implementing lock-free data structures. For example, the program
-[src/msg_passing.ml](src/msg_passing.ml) shows an implementation of message
+[src/msg_passing.ml](src/msg_passing.ml) shows an implementation of a message
 passing between domains. The program uses `get` and `set` on the atomic
 reference `r` for communication. Although the domains race on the access to `r`,
 since `r` is an atomic variable, it is not a data race. 
@@ -281,9 +297,9 @@ since `r` is an atomic variable, it is not a data race.
 Hello
 ```
 
-### Compare-and-set
+### Compare-and-Set
 
-Atomic module also has `compare_and_set` primitive. `compare_and_set r old new`
+The Atomic module also has `compare_and_set` primitive. `compare_and_set r old new`
 atomically compares the current value of the atomic reference `r` with the `old`
 value and replaces that with the `new` value. The program
 [src/incr_cas.ml](src/incr_cas.ml) shows how to implement atomic increment
@@ -312,15 +328,15 @@ is [src/prod_cons_nb.ml](src/prod_cons_nb.ml). Remember that
 physically match the current value of the atomic reference for the comparison to
 succeed.
 
-### Blocking synchronization
+### Blocking Synchronisation
 
 The only primitive that we have seen so far that blocks a domain is
-`Domain.join`. OCaml 5 also provides blocking synchronization through
+`Domain.join`. OCaml 5 also provides blocking synchronisation through
 [`Mutex`](https://github.com/ocaml/ocaml/blob/trunk/stdlib/mutex.mli),
 [`Condition`](https://github.com/ocaml/ocaml/blob/trunk/stdlib/condition.mli)
 and
 [`Semaphore`](https://github.com/ocaml/ocaml/blob/trunk/stdlib/semaphore.mli)
-modules. These are the same modules that are present in OCaml 4 to synchronize
+modules. These are the same modules that are present in OCaml 4 to synchronise
 between `Threads`. These modules have been lifted up to the level of domains.
 
 #### Exercise ★★★☆☆
