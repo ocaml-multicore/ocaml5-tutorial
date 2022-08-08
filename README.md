@@ -32,7 +32,7 @@ eval $(opam env)
 ```
 
 Since we will be doing performance measurements, it is recommended that you also
-install [`hyperfine`](https://github.com/sharkdp/hyperfine). Scroll down toward the bottom of the ReadMe to find the 
+install [`hyperfine`](https://github.com/sharkdp/hyperfine). Scroll down toward the bottom of its ReadMe to find the 
 installation instructions for various systems.
 
 ----
@@ -333,10 +333,10 @@ succeed.
 The only primitive that we have seen so far that blocks a domain is
 `Domain.join`. OCaml 5 also provides blocking synchronisation through
 [`Mutex`](https://github.com/ocaml/ocaml/blob/trunk/stdlib/mutex.mli),
-[`Condition`](https://github.com/ocaml/ocaml/blob/trunk/stdlib/condition.mli)
+[`Condition`],(https://github.com/ocaml/ocaml/blob/trunk/stdlib/condition.mli)
 and
 [`Semaphore`](https://github.com/ocaml/ocaml/blob/trunk/stdlib/semaphore.mli)
-modules. These are the same modules that are present in OCaml 4 to synchronise
+modules. These are the same modules present in OCaml 4 to synchronise
 between `Threads`. These modules have been lifted up to the level of domains.
 
 #### Exercise ★★★☆☆
@@ -365,9 +365,9 @@ to learn about effect handlers, please do check out the [effect handlers
 tutorial in the OCaml 5 manual](https://kcsrk.info/webman/manual/effects.html).
 
 [Domainslib](https://github.com/ocaml-multicore/domainslib) is a library that
-provides support for nested-parallel programming, which is epitomized by
+provides support for nested-parallel programming, which is epitomised by
 the parallelism available in the recursive Fibonacci computation. At its core,
-`domainslib` has an efficient implementation of work-stealing queue in order to
+`domainslib` has an efficient implementation of a work-stealing queue in order to
 efficiently share tasks with other domains. 
 
 Let's first install `domainslib`:
@@ -376,7 +376,7 @@ Let's first install `domainslib`:
 % opam install domainslib
 ```
 
-### Async/await
+### Async/Await
 
 At its core, `domainslib` provides an
 [async/await](https://github.com/ocaml-multicore/domainslib/blob/b8de1f718804f64b158dd3bffda1b1c15ea90f29/lib/task.mli#L38-L49)
@@ -386,8 +386,8 @@ iterators](https://github.com/ocaml-multicore/domainslib/blob/b8de1f718804f64b15
 
 ### Parallel Fibonacci 
 
-Let us now parallelise Fibonacci using domainslib. The program is in the file
-[src/fib_domainslib.ml](src/fib_domainslib.ml):
+Let us now parallelise Fibonacci using `domainslib`. The program is in the file
+[src/fib_domainslib.ml](src/fib_domainslib.ml), but shown below for your convenience:
 
 ```ocaml
 module T = Domainslib.Task
@@ -417,7 +417,7 @@ The program takes the number of domains to use as the first argument and the
 input as the second argument. 
 
 Let's start with the main function. The first
-thing to do in order to use domainslib is to set up a pool of domains on which
+thing to do in order to use `domainslib` is to set up a pool of domains on which
 the nested parallel tasks will run. The domain invoking the `run` function will
 also participate in executing the tasks submitted to the pool. We invoke the
 parallel Fibonacci function `fib_par` in the `run` function. Finally, we
@@ -426,14 +426,14 @@ teardown the pool and print the result.
 For sufficiently large inputs (`n > 20`), the `fib_par` function spawns the left
 and the right recursive calls asynchronously in the pool using `async` function.
 `async` function returns a promise for the result. The result of an `async` is
-obtained by `await`ing on the promise, which may block if the promise is not
+obtained by `await`ing the promise, which may block if the promise is not
 resolved. 
 
 For small inputs, the function simply calls the sequential Fibonacci function.
 It is important to switch to sequential mode for small problem sizes. If not,
 the cost of parallelisation will outweigh the work available.
 
-Let's see how this program scales compared to our earlier implementations.
+Let's see how this program scales compared to our earlier implementations. Run the following:
 
 ```bash
 % hyperfine 'dune exec src/fib.exe 42'
@@ -452,7 +452,7 @@ Benchmark 1: dune exec src/fib_domainslib.exe 2 42
   Range (min … max):   662.0 ms … 692.1 ms    10 runs
 ```
 
-The domainslib version scales extremely well. This holds true even as the core
+The `domainslib` version scales extremely well. This holds true even as the core
 count increases. On a machine with 24 cores, for `fib(48)`,
 
 | Cores	| Time (Seconds)	| Vs Serial	| Vs Self |
@@ -475,9 +475,9 @@ let rec tak x y z =
   else z
 ```
 
-The skeleton file is in [src/tak_par.ml](src/tak_par.ml). Calculating the time
+The skeleton file shown above is in [src/tak_par.ml](src/tak_par.ml). Calculating the time
 complexity of `tak` function turns out to be tricky. Use `x < 20 && y < 20` as
-the sequential cutoff -- if the condition holds, call the sequential version of
+the sequential cutoff. If the condition holds, call the sequential version of
 `tak`.
 
 ```bash
@@ -496,17 +496,17 @@ Benchmark 3: dune exec solutions/tak_par.exe 4 36 24 12
 ```
 
 Observe that there is super-linear speedup going from the sequential version to
-the 2 core version! Why?
+the two-core version! Why?
 
 
 #### Exercise ★★★★★
 
 Implement a parallel version of merge sort. It easy to implement a version that
-doesn't scale :-) If you use a list for holding the intermediate results, GC
+doesn't scale :-). If you use a list for holding the intermediate results, the GC
 impact will kill scalability. 
 
-You should use an array for holding the elements to be sorted. The observation
-is that during the merge step, the length of the merged result is exactly the
+You should use an [array](https://kcsrk.info/webman/manual/values.html#ss%3Avalues%3Aarray) for holding the elements to be sorted. We observed 
+that during the merge step, the length of the merged result is exactly the
 sum of the input arrays. Hence, one may use an additional array of the same size
 as the input array to hold the merge results.
 
@@ -518,7 +518,7 @@ straight-forward way to parallelize such code. Lets take the
 benchmark from the computer language benchmarks game. The sequential version of
 the benchmark is available at [src/spectralnorm.ml](src/spectralnorm.ml).
 
-We can see that the program has several for loops. How do we which part of the
+We can see that the program has several for loops. How do we know which part of the
 program is amenable to parallelism? We can profile the program using `perf` to
 answer this. `perf` only works on Linux.
 
@@ -589,20 +589,20 @@ Benchmark 2: dune exec src/spectralnorm_par.exe 4 4096
 
 Implement parallel version of [Game of
 Life](https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life) simulation. The
-sequential version is in [src/game_of_life.ml](src/game_of_life.ml). The
-sequential version takes the number of iterations and the board size as the
+sequential version is in [src/game_of_life.ml](src/game_of_life.ml). It 
+takes the number of iterations and the board size as the
 first and second arguments.
 
 You should modify [src/game_of_life_par.ml](src/game_of_life_par.ml) with the
 parallel version. Currently, this file is the same as the sequential version
 except that it takes the number of domains as the first argument, the number
-iterations as the second argument and the board size as the third argument.
+iterations as the second argument, and the board size as the third argument.
 
 
-#### Parallelising mandelbrot
+#### Parallelising Mandelbrot
 
 Let's parallelise something more tricky -- the [sequential version of
-mandelbrot](https://benchmarksgame-team.pages.debian.net/benchmarksgame/program/mandelbrot-ocaml-6.html)
+Mandelbrot](https://benchmarksgame-team.pages.debian.net/benchmarksgame/program/mandelbrot-ocaml-6.html)
 from the computer language benchmarks game. The sequential version is available
 in [src/mandelbrot.ml](src/mandelbrot.ml).
 
