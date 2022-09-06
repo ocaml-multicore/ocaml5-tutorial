@@ -32,7 +32,7 @@ eval $(opam env)
 ```
 
 Since we will be doing performance measurements, it is recommended that you also
-install [`hyperfine`](https://github.com/sharkdp/hyperfine). Scroll down toward the bottom of its ReadMe to find the 
+install [`hyperfine`](https://github.com/sharkdp/hyperfine). Scroll down toward the bottom of its README to find the 
 installation instructions for various systems.
 
 ----
