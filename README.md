@@ -38,7 +38,7 @@ installation instructions for various systems.
 ----
 
 **Please note**: Many of the following exercises require access to files in this repo, so please clone it now 
-using `https://github.com/kayceesrk/ocaml5-tutorial.git`, then `cd ocaml5-tutorial`.
+using `git clone https://github.com/kayceesrk/ocaml5-tutorial.git`, then `cd ocaml5-tutorial`.
 
 Throughout, we'll be using Dune, OCaml's build system, to convert our programs into executables. For more information on 
 Dune, please reference [Dune's documentation](https://dune.readthedocs.io/en/stable/).
