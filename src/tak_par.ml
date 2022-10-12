@@ -17,7 +17,7 @@ let rec tak x y z =
 let rec tak_par p x y z = failwith "not implemented"
 
 let main () =
-  let p = T.setup_pool ~num_additional_domains:(num_domains - 1) () in
+  let p = T.setup_pool ~num_domains:(num_domains - 1) () in
   let r = T.run p (fun _ -> tak_par p x y z) in
   T.teardown_pool p;
   Printf.printf "tak %d %d %d = %d\n" x y z r
