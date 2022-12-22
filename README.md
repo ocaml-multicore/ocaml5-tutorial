@@ -505,7 +505,7 @@ Implement a parallel version of merge sort. It easy to implement a version that
 doesn't scale :-). If you use a list for holding the intermediate results, the GC
 impact will kill scalability. 
 
-You should use an [array](https://kcsrk.info/webman/manual/values.html#ss%3Avalues%3Aarray) for holding the elements to be sorted. We observed 
+You should use an [array](https://v2.ocaml.org/api/Array.html) for holding the elements to be sorted. We observed 
 that during the merge step, the length of the merged result is exactly the
 sum of the input arrays. Hence, one may use an additional array of the same size
 as the input array to hold the merge results.
