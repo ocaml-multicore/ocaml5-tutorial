@@ -287,7 +287,7 @@ Atomic ref count: 2000000
 
 The Atomic module is used for low-level, inter-domain communication. They are used
 for implementing lock-free data structures. For example, the program
-[src/msg_passing.ml](src/msg_passing.ml) shows an implementation of a message
+[src/msg_passing.ml](src/msg_passing.ml) shows an implementation of message
 passing between domains. The program uses `get` and `set` on the atomic
 reference `r` for communication. Although the domains race on the access to `r`,
 since `r` is an atomic variable, it is not a data race. 
