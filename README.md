@@ -17,16 +17,7 @@ With opam version >= 2.1:
 
 ```bash
 opam update
-opam switch create 5.0.0~alpha0 --repo=default,alpha=git+https://github.com/kit-ty-kate/opam-alpha-repository.git
-opam install . --deps-only
-eval $(opam env)
-```
-
-with opam version < 2.1:
-
-```bash
-opam update
-opam switch create 5.0.0~alpha0 --repo=default,beta=git+https://github.com/ocaml/ocaml-beta-repository.git,alpha=git+https://github.com/kit-ty-kate/opam-alpha-repository.git
+opam switch create 5.1.0
 opam install . --deps-only
 eval $(opam env)
 ```
