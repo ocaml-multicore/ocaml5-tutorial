@@ -17,8 +17,9 @@
 
 (package
  (name ocaml5_tutorial)
+ (allow_empty)
  (synopsis "A tutorial on new concurrency features in OCaml 5")
  (description "A tutorial on new concurrency features in OCaml 5")
- (depends ocaml dune))
+ (depends ocaml dune (domainslib (>= 0.5.1))))
 
 ; See the complete stanza docs at https://dune.readthedocs.io/en/stable/dune-files.html#dune-project

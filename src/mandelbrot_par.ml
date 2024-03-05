@@ -42,7 +42,7 @@ let mandelbrot pool w =
   )
 
 let main () =
-  let pool = T.setup_pool ~num_additional_domains:(num_domains - 1) () in
+  let pool = T.setup_pool ~num_domains:(num_domains - 1) () in
   let l = T.run pool (fun _ -> mandelbrot pool w) in
   T.teardown_pool pool;
   List.iter (fun buf -> output_bytes stdout (Buffer.to_bytes buf)) l
