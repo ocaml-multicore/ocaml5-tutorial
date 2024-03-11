@@ -62,7 +62,7 @@ let rec repeat pool n =
   | _-> next pool; repeat pool (n-1)
 
 let ()=
-  let pool = T.setup_pool ~num_additional_domains:(num_domains - 1) () in
+  let pool = T.setup_pool ~num_domains:(num_domains - 1) () in
   print !rg;
   T.run pool (fun _ -> repeat pool n_times);
   print !rg;
