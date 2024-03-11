@@ -48,6 +48,6 @@ let sort pool a =
   T.run pool (fun () -> merge_sort pool false a b 0 (Array.length a))
 
 let () =
-  let pool = T.setup_pool ~num_additional_domains:(num_domains - 1) () in
+  let pool = T.setup_pool ~num_domains:(num_domains - 1) () in
   sort pool a;
   T.teardown_pool pool

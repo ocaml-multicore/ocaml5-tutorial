@@ -380,7 +380,7 @@ let rec fib_par pool n =
   end else fib n
 
 let main () =
-  let pool = T.setup_pool ~num_additional_domains:(num_domains - 1) () in
+  let pool = T.setup_pool ~num_domains:(num_domains - 1) () in
   let res = T.run pool (fun _ -> fib_par pool n) in
   T.teardown_pool pool;
   Printf.printf "fib(%d) = %d\n" n res
