@@ -239,7 +239,7 @@ consistent** -- the observed behaviour can simply be understood as the
 interleaved execution of different domains. This guarantee is known as
 data-race-freedom sequential-consistency (DRF-SC).
 
-An important aspect of the OCaml 5 memory model is that, even if you program has
+An important aspect of the OCaml 5 memory model is that, even if your program has
 data races, your program will not crash (memory safety). The recommendation for
 the OCaml user is that **avoid data races for ease of reasoning**.
 
@@ -493,7 +493,7 @@ straight-forward way to parallelize such code. Lets take the
 benchmark from the computer language benchmarks game. The sequential version of
 the benchmark is available at [src/spectralnorm.ml](src/spectralnorm.ml).
 
-We can see that the program has several for loops. How do we which part of the
+We can see that the program has several for loops. How do we know which part of the
 program is amenable to parallelism? We can profile the program using `perf` to
 answer this. `perf` only works on Linux.
 
